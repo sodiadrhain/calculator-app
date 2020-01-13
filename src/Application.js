@@ -111,7 +111,7 @@ render(){
     ]
 
     return(
-        <div>
+        <div  className="body">
             <div> 
     <span className="prevNum">{this.state.num}</span>
 
@@ -123,6 +123,8 @@ render(){
                 )
 
             })}
+            <br/>
+            <h5>Developed by <a href="https://sodiadrhian.github.io/portfolio">Master Soji</a></h5>
             </div>
     )
 }
