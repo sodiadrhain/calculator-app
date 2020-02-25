@@ -1,134 +1,82 @@
-import React, {Component} from "react";
-import Button from "./component/Button";
+import React, { Component } from 'react';
+import Button from './component/Button';
 import "./css/style.css";
 
 class Application extends Component {
-
-    constructor(props){
+  constructor(props){
     super(props);
 
-    this.state ={
-        num: '',
-        prevNum: '',
-        sum: 0,
-        sign: ''
+
+    this.state = {
+      current: '0',
+      previous: [],
+      nextIsReset: false
     }
+  }
 
+  reset = () => {
+    this.setState({current: '0', previous: [], nextIsReset: false});
+  }
+
+  addToCurrent = (symbol) => {
+    console.log("symbol");
+    if(["/", "-", "+", "*"].indexOf(symbol) > -1){
+      let {previous} = this.state;
+      previous.push(this.state.current + symbol);
+      this.setState({previous, nextIsReset: true});
+    }else{
+      
+      if((this.state.current === "0" && symbol !== ".") || this.state.nextIsReset){
+        this.setState({current: symbol, nextIsReset: false});
+      }else{
+        this.setState({current: this.state.current + symbol});
+      }
     }
+  }
 
-
-
- useValue = (symbol) => {
-    
-   
-     this.setState({num: this.state.num + symbol})
-     this.setState({  sum: this.state.num + symbol })
-
-     var ccnum = this.state.num;
-     ccnum = ccnum[ccnum.length - 1]
-
-     if ((symbol === '.') && (ccnum === '+' || ccnum=== '-' || ccnum === '/' || ccnum === '*') ) {
-
-         this.setState({ num: this.state.prevNum })
-     }
-
-     if ((symbol === '+' || symbol === '-' || symbol === '/' || symbol === '*')){    
-         
-
-         var cnum = this.state.num;
-         cnum = cnum[cnum.length - 1]
-         this.setState({prevNum: this.state.num})
-        
-        
-         if (cnum === '+' || cnum === '-' || cnum === '/' || cnum === '*') {
-            
-             this.setState({ num: this.state.prevNum})
-             
-             
-         } else{ 
-             
-        this.setState({ sum: this.state.num })
-        
-        
-        this.setState({sum: ''})
-
-
-         }
-         var mainPrev = this.state.num;
-         var num = eval(String(mainPrev))
-         this.setState({ sum: num });
- 
-
-    } else{
-         this.setState({ sum: symbol })
-        
+  calculate = (symbol) => {
+    let {current, previous, nextIsReset} = this.state;
+    if(previous.length > 0){
+      current = eval(String(previous[previous.length - 1] + current));
+      this.setState({current, previous: [], nextIsReset: true});
     }
+  }
 
+  render() {
+    const buttons = [
+      {symbol: 'C', cols: 3, action: this.reset},
+      {symbol: '/', cols: 1, action: this.addToCurrent},
+      {symbol: '7', cols: 1, action: this.addToCurrent},
+      {symbol: '8', cols: 1, action: this.addToCurrent},
+      {symbol: '9', cols: 1, action: this.addToCurrent},
+      {symbol: '*', cols: 1, action: this.addToCurrent},
+      {symbol: '4', cols: 1, action: this.addToCurrent},
+      {symbol: '5', cols: 1, action: this.addToCurrent},
+      {symbol: '6', cols: 1, action: this.addToCurrent},   
+      {symbol: '-', cols: 1, action: this.addToCurrent},
+      {symbol: '1', cols: 1, action: this.addToCurrent},
+      {symbol: '2', cols: 1, action: this.addToCurrent},
+      {symbol: '3', cols: 1, action: this.addToCurrent},
+      {symbol: '+', cols: 1, action: this.addToCurrent},
+      {symbol: '0', cols: 2, action: this.addToCurrent},
+      {symbol: '.', cols: 1, action: this.addToCurrent},
+      {symbol: '=', cols: 1, action: this.calculate},
+    ];
 
-
-     
-    
-
-    }
-
-
-useClear = () => {
-        this.setState({ num: '' })
-    this.setState({ sum: '' })
-    }
-
-useSum = () => {
-
-    var mainPrev = this.state.num;
-  
-    var num = eval(String(mainPrev))
-    this.setState({ sum: num});
-    this.setState({ num: num });
-
-    }
-
-
-render(){
-
-    const handleValue = [
-        { symbol: '/', cols:1, action:this.useValue },
-        { symbol: '*', cols:1, action:this.useValue },
-        { symbol: 'C', cols:'2a', action:this.useClear },
-        { symbol: '7', cols:1, action:this.useValue },
-        { symbol: '8', cols:1, action:this.useValue },
-        { symbol: '9', cols:1, action:this.useValue },
-        { symbol: '-', cols:1, action:this.useValue },
-        { symbol: '4', cols:1, action:this.useValue },
-        { symbol: '5', cols:1, action:this.useValue },
-        { symbol: '6', cols:1, action:this.useValue },
-        { symbol: '+', cols:1, action:this.useValue },
-        { symbol: '1', cols:1, action:this.useValue },
-        { symbol: '2', cols:1, action:this.useValue },
-        { symbol: '3', cols:1, action:this.useValue },
-        { symbol: '.', cols:1, action:this.useValue },
-        { symbol: '0', cols:1, action:this.useValue },
-        { symbol: '=', cols:3, action:this.useSum }
-    ]
-
-    return(
-        <div  className="body">
-            <div> 
-    <span className="prevNum">{this.state.num}</span>
-
-                <input type="text" value={this.state.sum} /><br></br></div> 
-            {handleValue.map((sys, i) => {
-
-                return (
-                    <Button symbol={sys.symbol} cols={sys.cols} action={ () => sys.action(sys.symbol)} key={i} />
-                )
-
-            })}
-            <br/>
-            <h5>Developed by <a href="https://sodiadrhian.github.io/portfolio">Master Soji</a></h5>
-            </div>
-    )
-}
-
+    return (
+      <div className="App">
+        {this.state.previous.length > 0 ?
+          <div className="floaty-last">{this.state.previous[this.state.previous.length - 1]}</div>
+        : null}
+        <input className="result" type="text" value={this.state.current} />
+      
+        {buttons.map((btn, i) => {
+          return <Button key={i} symbol={btn.symbol} cols={btn.cols} action={(symbol) => btn.action(symbol)} />
+        })}
+      
+      </div>
+    );
+  }
 }
 
 export default Application;
